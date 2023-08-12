@@ -21,9 +21,8 @@ def get_os_arch():
     elif system == 'Windows':
         if machine == 'AMD64':
             return 'windows', 'amd64'
-        else:
-            print("Unsupported architecture for Windows. Aborting download.")
-            return None, None
+        print("Unsupported architecture for Windows. Aborting download.")
+        return None, None
     elif system == 'Darwin':
         if machine == 'x86_64':
             return 'macos', 'amd64'
@@ -50,7 +49,7 @@ def download_snyk_cli(version):
     response = requests.get(url)
 
     if response.status_code == 200:
-        sha_response = requests.get(url + ".sha256")
+        sha_response = requests.get(f"{url}.sha256")
         if not sha_response:
             print("SHA256 checksum not available. Aborting download.")
             return
@@ -101,10 +100,10 @@ def verify_checksum(file_path, expected_checksum):
     sha256 = hashlib.sha256()
     with open(file_path, 'rb') as f:
         while True:
-            data = f.read(65536)
-            if not data:
+            if data := f.read(65536):
+                sha256.update(data)
+            else:
                 break
-            sha256.update(data)
     return sha256.hexdigest() == expected_checksum
 
 
